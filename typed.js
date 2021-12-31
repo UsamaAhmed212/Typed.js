@@ -8,7 +8,7 @@ function Typed() {
             let value = attribute.value;
             if( name.startsWith(/typed-[a-z][a-z]*/i.exec(name)) && (name.endsWith(/-[a-z][a-z]*/i.exec(name)) || name.endsWith(/-[a-z][a-z]*-[a-z]*/i.exec(name))) && (!value == '') && value == /[a-z0-9]*/i.exec(value) ) {
                 name = name.replace(/typed-/i, '').replace(/-([a-z])/gi, i => i.slice(1).toUpperCase());
-                attributesObj[name] = value;
+                attributesObj[name] = (value == /[0-9]*/.exec(value)) ? parseInt(value) : value;
             }
         });
 
@@ -17,54 +17,46 @@ function Typed() {
 
     function typed(element, attributes) {
         const {
-                startDelay = 0,
+                startPoint = 'end',
+                startDelay = 2000,
                 typeSpeed  = 0,
-                nextDelay  = 50,
                 backDelay  = 1500,
                 backSpeed  = 0,
+                nextDelay  = 50,
                 showCursor = 'true',
                 cursorBlink = 'true',
                 inEffect   = '',
                 outEffect  = '',
         } = attributes;
 
-        element.insertAdjacentHTML('afterbegin', `<span class="text-typed"><span></span></span>`);
-        const textTyped = element.querySelector('.text-typed span');
-        
+        const typedTexts = element.querySelector('.typed-texts');
+
         if (showCursor == 'false') {
-            textTyped.classList.add('cursor-hide');
+            typedTexts.classList.add('cursor-hide');
         }
 
         if (showCursor == 'true' && cursorBlink == 'true') {
-            textTyped.classList.add('blink');
+            typedTexts.classList.add('blink');
         }
 
-        if (!element.querySelector('.typed-texts .typed-text.current')) {
-            element.querySelector('.typed-texts .typed-text').classList.add('current');
+        if (!element.querySelector('.typed-texts span.type')) {
+            element.querySelector('.typed-texts span').classList.add('type');
         }
-        let width = 0;
 
-        function takeNext () {
-            const typedTexts = element.querySelectorAll('.typed-texts .typed-text');
-            const typedText = element.querySelector('.typed-texts .typed-text.current');
-            if (typedText.nextElementSibling) {
-                if (typedText.classList.contains('current')) {
-                    typedText.classList.remove('current');
-                    typedText.nextElementSibling.classList.add('current');
-                }
-            } else {
-                typedText.classList.remove('current');
-                typedTexts[0].classList.add('current');
-            }
-        }
+        const typedTextsWidth = element.querySelector('.typed-texts span.type').scrollWidth + 10;
+        (startPoint == 'end') ? typedTexts.style.width = typedTextsWidth +'px' : typedTexts.style.width = 0 +'px'; 
+        
+        const typeStart = setInterval(() => {
+            (startPoint == 'end') ? erase() : type();
+            clearInterval(typeStart);
+        }, startDelay);
 
         function type () {
-            textTyped.innerText = element.querySelector('.typed-texts .typed-text.current').innerHTML;
-            const textTypedWidth = textTyped.scrollWidth + 10;
-            
+            const typedTextsWidth = element.querySelector('.typed-texts span.type').scrollWidth + 10;
+            let width = 0;
             const type = setInterval(() => {
                 if (inEffect == 'clipIn') {
-                    let percent = Math.floor((width / textTypedWidth) * 100);
+                    let percent = Math.floor((width / typedTextsWidth) * 100);
                     if (percent <= 30) {
                         width += 1.40;
                     } else if (percent <= 35) {
@@ -88,8 +80,8 @@ function Typed() {
                     width += 1;
                 }
 
-                if (textTypedWidth >= width) {
-                    textTyped.style.width = width +'px';
+                if (typedTextsWidth >= width) {
+                    typedTexts.style.width = width +'px';
                 } else {
                     clearInterval(type);
                     setTimeout(() => {
@@ -98,17 +90,13 @@ function Typed() {
                 }
             }, typeSpeed);
         }
-        
-        const typeStart = setInterval(() => {
-            type();
-            clearInterval(typeStart);
-        }, startDelay);
 
         function erase () {
-            const textTypedWidth = textTyped.scrollWidth + 10;
+            const typedTextsWidth = element.querySelector('.typed-texts span.type').scrollWidth + 10;
+            let width = typedTextsWidth;
             const erase = setInterval(() => {
                 if (outEffect == 'clipOut') {
-                    let percent = Math.floor((width / textTypedWidth) * 100);
+                    let percent = Math.floor((width / typedTextsWidth) * 100);
                     if (percent >= 70) {
                         width -= 1.40;
                     } else if (percent >= 65) {
@@ -133,17 +121,42 @@ function Typed() {
                 }
 
                 if (width > 0) {
-                    textTyped.style.width = width +'px';
+                    typedTexts.style.width = width +'px';
                 } else {
                     clearInterval(erase);
-                    takeNext();
+                    const typedText = element.querySelector('.typed-texts span.type');
+
+                    typedText.classList.add("hide");
+
                     setTimeout(() => {
+                        takeNext();
                         type();
                     }, nextDelay);
                 }
             }, backSpeed);
         }
         
+        function takeNext () {
+            const typedTexts = element.querySelectorAll('.typed-texts span');
+            const typedText = element.querySelector('.typed-texts span.type');
+
+            typedText.classList.remove('hide');
+            
+            if (typedText.nextElementSibling) {
+                typedText.classList.remove('type');
+                if (typedText.getAttribute('class') == '') {
+                    typedText.removeAttribute('class');
+                }
+                typedText.nextElementSibling.classList.add('type');
+            } else {
+                typedText.classList.remove('type');
+                if (typedText.getAttribute('class') == '') {
+                    typedText.removeAttribute('class');
+                }
+                typedTexts[0].classList.add('type');
+            }
+        }
+
     }
 }
 

@@ -71,59 +71,71 @@ div.wrapper {
    text-align: center;
 }
 
-.typed-content {
+.typed {
    padding: 0;
    text-align: left;
    flex-grow: 0;
    color: #fff;
    font-weight: 400;
+   font-size: 40px;
    line-height: 1.2;
    letter-spacing: -0.02em;
    font-style: normal;
-   text-transform: capitalize;
 }
 
 .typed {
-   position: relative;
    display: inline-block;
-   white-space: nowrap;
-   text-align: center;
-   width: auto;
+}
+.typed span {
+   display: inline-block;
 }
 
-.typed .text-typed {
-   text-align: center;
-   visibility: hidden;
-   font-size: 40px;
-}
-
-.typed .text-typed span {
-   display: inline-flex;
-   visibility: visible;
+.typed .typed-texts {
    overflow: hidden;
-   width: 0px;
+   vertical-align: top;
+   position: relative;
+   text-align: left;
 }
 
-.typed .text-typed span::after {
-   content: "";
+.typed .typed-texts::after {
+   content: '';
    position: absolute;
-   background-color: #fff;
    top: 0;
-   left: auto;
    right: 0;
    width: 2px;
    height: 100%;
+   background-color: #fff;
 }
 
-.typed .text-typed span.cursor-hide::after {
-   display: none;
+.typed .typed-texts span {
+   position: absolute;
+   white-space: nowrap;
+   left: 0;
+   top: 0;
 }
 
-.typed .text-typed span.blink::after {
+.typed .typed-texts span {
+    opacity: 0;
+}
+
+.typed .typed-texts span.type {
+    opacity: 1;
+    position: relative;
+}
+
+.typed .typed-texts span.hide {
+   opacity: 0;
+}
+
+.typed .typed-texts.blink::after {
    background-color: #ccc;
    animation: blink 1s infinite;
- }
- 
+}
+
+.typed .typed-texts.cursor-hide::after {
+   display: none;
+} 
+
  @keyframes blink {
     0% {
       opacity: 1;
@@ -135,3 +147,5 @@ div.wrapper {
       opacity: 1;
     }
 }
+
+
